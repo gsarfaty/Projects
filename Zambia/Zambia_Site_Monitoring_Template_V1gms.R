@@ -4,7 +4,7 @@
 
 
 #load packages
-library(dbplyr)
+pacman::p_load(dplyr,readr
 
 
 #set WD
@@ -21,7 +21,7 @@ names(zambia_sites) <- tolower(names(zambia_sites))
 zambia_site_template <-zambia_sites %>%
   filter(fundingagency %in% c("USAID"),
          typefacility %in% c("Y"), 
-         !is.na(fy2017apr) | !is.na(fy2018_targets) | !is.na(fy2018q1)) %>%
+         !is.na(fy2018_targets) | !is.na(fy2018q1)) %>%
   select(operatingunit,snu1,snu1uid,psnuuid,psnu,facilityuid,facility,currentsnuprioritization,mechanismuid,primepartner,fundingagency,mechanismid,implementingmechanismname) %>% 
   distinct(facilityuid,mechanismuid,primepartner,implementingmechanismname, .keep_all=TRUE)
 
