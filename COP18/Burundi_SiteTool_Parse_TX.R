@@ -40,7 +40,7 @@ sitelist <- sitelist %>%
 
 
 #########################import coord as DF################################################
-gps <- read_tsv("Burundi_OrgUnits_20180412.csv")
+gps <- read_csv("Burundi_OrgUnits_20180412.csv", col_names = TRUE)
 
 gps <- gps %>% 
   mutate(coordinates = str_replace_all(coordinates, "\\[", ""),
@@ -60,7 +60,7 @@ COP18_GIS <- COP18_GIS %>%
 write_csv(COP18_GIS, "COP18_TX_CURR_Sites.csv", na="")
 
 
-#########################fy17 txcurr#######################################################
+#########################fy17 and fy18q1 txcurr txcurr#######################################################
 fy17tx_curr <-read_tsv("ICPI_MER_Structured_Dataset_Site_IM_Burundi_20180323_v2_1.txt")
 
 # change all header names to lower case to make it easier to use
@@ -71,9 +71,9 @@ names(fy17tx_curr) <- tolower(names(fy17tx_curr))
 fy17tx_curr2 <-fy17tx_curr %>%
   filter(indicator %in% c("TX_CURR"),
          standardizeddisaggregate %in% c("Total Numerator")) %>%
-  select(facilityuid,facility,indicator,standardizeddisaggregate,fy2017apr) %>% 
+  select(facilityuid,facility,indicator,standardizeddisaggregate,fy2017apr,fy2018q1) %>% 
   group_by(facilityuid,facility,add=TRUE) %>% 
-  summarize_at(vars(starts_with("fy2017")),funs(sum(.,na.rm=TRUE))) %>% 
+  summarize_at(vars(starts_with("fy2")),funs(sum(.,na.rm=TRUE))) %>% 
   ungroup()
 
 ###################join##################################################################
