@@ -1,0 +1,53 @@
+library(readxl)
+library(tidyverse)
+
+#PLHIV
+epi<-read_xlsx("2019-03-01 DataPack_Zambia_V1.12.xlsx", sheet="Epi Cascade I",skip=4, col_names=TRUE)
+
+
+epi_clean <-epi %>%
+separate(PSNU, c("psnu","psnuuid"), sep = "\\(") %>%
+mutate(psnuuid = str_remove(psnuuid, "\\)")) %>%
+select(psnu,psnuuid,Age,AgeCoarse,Sex,`PLHIV.NA.Age/Sex/HIVStatus.20T`,`TX_CURR_SUBNAT.N.Age/Sex/HIVStatus.20T`) %>%
+rename(plhiv=`PLHIV.NA.Age/Sex/HIVStatus.20T`,
+      tx_curr_20=`TX_CURR_SUBNAT.N.Age/Sex/HIVStatus.20T`)%>%
+group_by(psnu,psnuuid) %>%
+summarise_at(vars(plhiv:tx_curr_20),funs(sum(.,na.rm=TRUE)))
+
+
+
+#FY15/16
+FY15_16 <-read_tsv("MER_Structured_Dataset_PSNU_IM_FY15-16_20190215_v1_1_Zambia.txt") 
+
+
+TX_CURR15_16<-FY15_16%>% 
+  filter(indicator=="TX_CURR" & standardizedDisaggregate=="Total Numerator") %>% 
+  group_by(PSNUuid,PSNU,SNUPrioritization,indicator) %>% 
+  summarise_at(vars(FY2015Q4:FY2016Q2),funs(sum(.,na.rm=TRUE))) %>%
+  select(PSNUuid,PSNU,FY2015Q4,FY2016Q2) %>% 
+  rename(TX_CURR15q4=FY2015Q4,
+         TX_CURR16q2=FY2016Q2,
+         fy16priority=SNUPrioritization)
+
+
+#FY19Q1
+FY19 <-read_tsv("MER_Structured_Dataset_PSNU_IM_FY17-19_20190215_v1_2_Zambia.txt")
+
+TX_CURR19 <-FY19 %>%
+  filter(indicator=="TX_CURR" & standardizedDisaggregate=="Total Numerator") %>% 
+  group_by(PSNUuid,PSNU,indicator) %>% 
+  summarise_at(vars(FY2019Q1),funs(sum(.,na.rm=TRUE))) %>%
+  unite(indicator_unite,indicator,sep="_") %>% 
+  spread(indicator_unite, FY2019Q1) %>% 
+  rename(TX_CURR19=TX_CURR)
+
+rm(epi,FY15_16,FY19)
+
+
+#merge
+Final_0 <-merge(epi_clean,TX_CURR15_16, by.x="psnuuid", by.y="PSNUuid", all=TRUE)
+Final <-merge(Final_0,TX_CURR19, by.x="psnuuid", by.y="PSNUuid", all=TRUE) %>% 
+  select(psnuuid,psnu,PSNU.x,fy16priority,TX_CURR15q4,TX_CURR16q2,PSNU.y,TX_CURR19,tx_curr_20,plhiv)
+
+
+write_tsv(Final, "Zambia_ARTCov_FY15to19_12pm.txt")
