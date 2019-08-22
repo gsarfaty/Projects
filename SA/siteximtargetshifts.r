@@ -11,7 +11,7 @@ rm(site1,site2)
 
 ####for now, keep to cascade total n/totla d [tst,pos,new,curr,pvls]
 sitexim_sub<-sitexim %>% 
-  filter(indicator %in% c("HTS_TST", "HTS_TST_POS","TX_NEW","TX_CURR","TX_PVLS"),
+  filter(indicator %in% c("HTS_TST", "HTS_TST_POS","TX_NEW","TX_CURR","TX_NET_NEW","TX_PVLS"),
          standardizedDisaggregate %in% c("Total Numerator", "Total Denominator"))
 
 
