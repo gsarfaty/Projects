@@ -241,6 +241,23 @@ tshwane<-wide_sub %>%
   mutate(FundingAgency_modified=case_when(
     mech_code=="17036" ~ "HHS/CDC",
     TRUE ~ FundingAgency
+  )) %>% 
+  filter(Fiscal_Year=="2018" & indicator=="TX_CURR" & PSNU=="gp City of Tshwane Metropolitan Municipality") %>% 
+  mutate(mech_code_modified=case_when(
+    mech_code=="17021" ~ "18484",
+    TRUE ~ mech_code
+  )) %>% 
+  mutate(mech_name_modified=case_when(
+    mech_code=="17021" ~ "Aurum Comprehensive (CDC GH001981)",
+    TRUE ~ mech_name
+  )) %>% 
+  mutate(PrimePartner_modified=case_when(
+    mech_code=="17021" ~ "THE AURUM INSTITUTE",
+    TRUE ~ PrimePartner
+  )) %>% 
+  mutate(FundingAgency_modified=case_when(
+    mech_code=="17021" ~ "HHS/CDC",
+    TRUE ~ FundingAgency
   ))
 
 
@@ -266,17 +283,18 @@ df_final<-df %>%
     TRUE ~ mech_code_modified
   )) %>% 
   mutate(mech_name_modified=case_when(
-    Fiscal_Year=="2019" & indicator=="TX_NEW" & PSNU=="wc City of Cape Town Metropolitan Municipality" & mech_code=="70301" ~ "Aurum Comprehensive (CDC GH001981)",
+    Fiscal_Year=="2019" & indicator=="TX_NEW" & PSNU=="gp City of Tshwane Metropolitan Municipality" & mech_code=="70301" ~ "Aurum Comprehensive (CDC GH001981)",
     TRUE ~ mech_name_modified
   )) %>% 
   mutate(PrimePartner_modified=case_when(
-    Fiscal_Year=="2019" & indicator=="TX_NEW" & PSNU=="wc City of Cape Town Metropolitan Municipality" & mech_code=="70301" ~ "THE AURUM INSTITUTE",
+    Fiscal_Year=="2019" & indicator=="TX_NEW" & PSNU=="gp City of Tshwane Metropolitan Municipality" & mech_code=="70301" ~ "THE AURUM INSTITUTE",
     TRUE ~ PrimePartner_modified
   )) %>% 
   mutate(FundingAgency_modified=case_when(
-    Fiscal_Year=="2019" & indicator=="TX_NEW" & PSNU=="wc City of Cape Town Metropolitan Municipality" & mech_code=="70301" ~ "HHS/CDC",
+    Fiscal_Year=="2019" & indicator=="TX_NEW" & PSNU=="gp City of Tshwane Metropolitan Municipality" & mech_code=="70301" ~ "HHS/CDC",
     TRUE ~ FundingAgency_modified
   ))
 
 write_tsv(df_final,"SA_Retention_PartnerShiftAdjusted_20191106.txt",na="")
+
 
