@@ -134,7 +134,7 @@ Nkangala<-wide_sub %>%
 CT<-wide_sub %>% 
   filter(Fiscal_Year=="2018" & indicator=="TX_CURR" & PSNU=="wc City of Cape Town Metropolitan Municipality") %>% 
   mutate(mech_code_modified=case_when(
-    mech_code=="17046" ~ "70287",
+    mech_code=="17046" ~ "70310",
     TRUE ~ mech_code
   )) %>% 
   mutate(mech_name_modified=case_when(
