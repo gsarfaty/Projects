@@ -58,7 +58,9 @@ wide_sub_foundation<-wide_sub %>%
   filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="kz uMgungundlovu District Municipality") %>% 
   filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="gp City of Tshwane Metropolitan Municipality") %>% 
   filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="ec Alfred Nzo District Municipality") %>% 
-  filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="ec Buffalo City Metropolitan Municipality") 
+  filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="ec Buffalo City Metropolitan Municipality") %>% 
+  filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="ec Chris Hani District Municipality") %>% 
+  filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="ec Oliver Tambo District Municipality") 
   
 
 
@@ -286,8 +288,41 @@ buffalo<-wide_sub %>%
     TRUE ~ PrimePartner
   ))
 
+#oliver tambo
+otambo<-wide_sub %>% 
+  filter(Fiscal_Year=="2018" & indicator=="TX_CURR" & PSNU=="ec Oliver Tambo District Municipality") %>% 
+  mutate(mech_code_modified=case_when(
+    mech_code=="18481" ~ "18482",
+    TRUE ~ mech_code
+  )) %>% 
+  mutate(mech_name_modified=case_when(
+    mech_code=="18481" ~ "TB/HIV Care Comprehensive (CDC GH001933)",
+    TRUE ~ mech_name
+  )) %>% 
+  mutate(PrimePartner_modified=case_when(
+    mech_code=="18481" ~ "TB HIV CARE ASSOCIATION",
+    TRUE ~ PrimePartner
+  ))
+
+
+#Chris Hani
+chrishani<-wide_sub %>% 
+  filter(Fiscal_Year=="2018" & indicator=="TX_CURR" & PSNU=="ec Chris Hani District Municipality") %>% 
+  mutate(mech_code_modified=case_when(
+    mech_code=="18481" ~ "18482",
+    TRUE ~ mech_code
+  )) %>% 
+  mutate(mech_name_modified=case_when(
+    mech_code=="18481" ~ "TB/HIV Care Comprehensive (CDC GH001933)",
+    TRUE ~ mech_name
+  )) %>% 
+  mutate(PrimePartner_modified=case_when(
+    mech_code=="18481" ~ "TB HIV CARE ASSOCIATION",
+    TRUE ~ PrimePartner
+  ))
+  
 #re-bound
-df<-bind_rows(wide_sub_foundation,coj,sedibeng,capricorn,Nkangala,CT,Lej,dkk,ethekwini,umgung,tshwane,alfrednzo,buffalo)
+df<-bind_rows(wide_sub_foundation,coj,sedibeng,capricorn,Nkangala,CT,Lej,dkk,ethekwini,umgung,tshwane,alfrednzo,buffalo,otambo,chrishani)
 
 
 df_final<-df %>% 
