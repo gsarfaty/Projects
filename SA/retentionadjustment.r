@@ -56,7 +56,10 @@ wide_sub_foundation<-wide_sub %>%
   filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="nw Dr Kenneth Kaunda District Municipality") %>% 
   filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="kz eThekwini Metropolitan Municipality") %>% 
   filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="kz uMgungundlovu District Municipality") %>% 
-  filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="gp City of Tshwane Metropolitan Municipality")
+  filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="gp City of Tshwane Metropolitan Municipality") %>% 
+  filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="ec Alfred Nzo District Municipality") %>% 
+  filter(!Fiscal_Year=="2018" | !indicator=="TX_CURR" | !PSNU=="ec Buffalo City Metropolitan Municipality") 
+  
 
 
 #COJ FY18Q4 CURR
@@ -246,11 +249,41 @@ tshwane<-wide_sub %>%
     mech_code=="17021" ~ "HHS/CDC",
     TRUE ~ FundingAgency
   ))
-  
 
+#alfred Nzo
+alfrednzo<-wide_sub %>% 
+  filter(Fiscal_Year=="2018" & indicator=="TX_CURR" & PSNU=="ec Alfred Nzo District Municipality") %>% 
+  mutate(mech_code_modified=case_when(
+    mech_code=="17023" ~ "70289",
+    TRUE ~ mech_code
+  )) %>% 
+  mutate(mech_name_modified=case_when(
+    mech_code=="17023" ~ "MatCH: Accelerating Program Achievements to Control the epidemic Eastern Cape (Alfred Nzo), KZN (Harry Gwala, eThekwini, uMgungundlovu)",
+    TRUE ~ mech_name
+  )) %>% 
+  mutate(PrimePartner_modified=case_when(
+    mech_code=="17023" ~ "WITS HEALTH CONSORTIUM (PTY) LTD",
+    TRUE ~ PrimePartner
+  ))
+
+#buffalo city
+buffalo<-wide_sub %>% 
+  filter(Fiscal_Year=="2018" & indicator=="TX_CURR" & PSNU=="ec Buffalo City Metropolitan Municipality") %>% 
+  mutate(mech_code_modified=case_when(
+    mech_code=="17036" ~ "70288",
+    TRUE ~ mech_code
+  )) %>% 
+  mutate(mech_name_modified=case_when(
+    mech_code=="17036" ~ "KI: Accelerating Program Achievements to Control the epidemicEastern Cape: Buffalo City Western Cape: Cape Town",
+    TRUE ~ mech_name
+  )) %>% 
+  mutate(PrimePartner_modified=case_when(
+    mech_code=="17036" ~ "KHETHIMPILO AIDS FREE LIVING",
+    TRUE ~ PrimePartner
+  ))
 
 #re-bound
-df<-bind_rows(wide_sub_foundation,coj,sedibeng,capricorn,Nkangala,CT,Lej,dkk,ethekwini,umgung,tshwane)
+df<-bind_rows(wide_sub_foundation,coj,sedibeng,capricorn,Nkangala,CT,Lej,dkk,ethekwini,umgung,tshwane,alfrednzo,buffalo)
 
 
 df_final<-df %>% 
