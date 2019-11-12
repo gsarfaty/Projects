@@ -6,7 +6,7 @@ library(readxl)
 dsp_shifts<-read_excel("ContextFiles\\FY18_19_DistrictShifts.xlsx",sheet="Agency")
 
 #read in genie
-genie<-read_tsv("SA_fy19q4inprocess_20191106_cascadeonly.txt",
+genie<-read_tsv("SA_fy19q4inprocess_20191112_cascadeonly.txt",
                 col_types = c(.default = "c")) %>%
   mutate_at(vars(TARGETS,Qtr1,Qtr2,Qtr3,Qtr4,Cumulative), as.double)
 
@@ -208,6 +208,10 @@ ethekwini<-wide_sub %>%
   mutate(FundingAgency_modified=case_when(
     fy19q1_sitetransition=="USAIDtoCDC" ~ "HHS/CDC",
     TRUE ~ FundingAgency
+  )) %>% 
+  mutate(fy19q1_sitetransition=case_when(
+    Fiscal_Year=="2018" & indicator=="TX_CURR" & SiteName=="kz Cato Manor CHC" & FundingAgency=="HHS/CDC" ~ "CDC Exited in fy19q1",
+    TRUE ~ fy19q1_sitetransition
   ))
   
 #umgung
@@ -316,4 +320,5 @@ df_final<-df %>%
     TRUE ~ FundingAgency_modified
   ))
 
-write_tsv(df_final,"SA_Retention_PartnerShiftAdjusted_20191106.txt",na="")
+
+write_tsv(df_final,"SA_Retention_PartnerShiftAdjusted_20191112.txt",na="")
