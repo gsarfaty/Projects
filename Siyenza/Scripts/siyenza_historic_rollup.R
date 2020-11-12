@@ -1,4 +1,8 @@
-#load packages
+# TOPIC: PHUTHUMA R Script - Roll Up Historic Weekly Data to Monthly
+# Developed by: Yaa Obeng & Gina Sarfaty
+
+
+#load packages ----------------------------------------------------------------------
 library(tidyverse)
 library(here)
 library(readxl)
@@ -7,7 +11,7 @@ library(here)
 
 
 #GLOBALS -----------------------------------------------------------------------------
-raw<-here("Data")
+raw<-here("Data/Historical")
 
 
 # RAW DATA IN ------------------------------------------------------------------------
@@ -15,7 +19,7 @@ raw<-here("Data")
 raw_files<-list.files(raw,pattern=".xlsx")
 
 
-raw_df<-here("Data",raw_files) %>% 
+raw_df<-here("Data/Historical",raw_files) %>% 
   map(~ read_excel(.x, sheet = which(str_detect(excel_sheets(.x), "RAW|Siyenza"))))%>%
   reduce(bind_rows)
 
@@ -53,9 +57,24 @@ final<-bind_rows(df_snapshot,df_cumulative) %>%
          Earlymissed=EARLYMISSED,
          LateMissed=LATEMISSED)
 
+
+# CREATE MONTHLY WEEK START & END VARIABLES FOR HISTORICAL DATA --------------------------
+dateref<- df_base %>%
+  group_by(mon_yr, Facility, MechanismID) %>% 
+  mutate(Week_Start = min(Week_Start),
+         Week_End = max(Week_End)) %>% 
+  ungroup() %>% 
+  select(c(Facility, MechanismID, Week_Start, Week_End, mon_yr)) %>% 
+  distinct(Facility, MechanismID, Week_Start, Week_End, mon_yr)
+
+
+# MERGE HISTORICAL DATA WITH WEEK START & END VARIABLES -----------------------------------
+final<-left_join(final, dateref) %>%  
+
+
 # EXPORT -----------------------------------------------------------------------------
 
 filename<-paste("historic_siyenza", "_", Sys.Date(), ".txt", sep="")
 
-write_tsv(final, file.path(here("Dataout"),filename,na=""))
+write_tsv(final, file.path(here("Data/Historical"),filename,na=""))
 
