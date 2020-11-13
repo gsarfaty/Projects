@@ -87,64 +87,71 @@ rem_ind<-base_df %>%
 
 # SNAPSHOT DATA CALC -------------------------------------------------------------------
   
- snapshot_df<-base_df %>% 
-    filter(indicator %in% snapshot_ind)
+snapshot_df<-base_df %>% 
+  filter(indicator %in% snapshot_ind)
 
-   ##### CALCULATE HISTORICAL NET_NEW  
- netnew28<- snapshot_df %>% 
-     filter(indicator %in% c("TX_CURR_28")) %>%
-    filter(!is.na(val)) %>%  
-    arrange(Facility, mon_yr) %>% 
-    mutate(net_new= (val - lag(val, default = 0, order_by = Facility))) %>% 
-    gather(indicator, val, "net_new") %>% 
-    filter(mon_yr < "2020-07") %>% 
-    mutate(new_indicator= "NET_NEW_proxy") %>%
-   select(-indicator) %>% 
-    spread(new_indicator, val)
- 
- ##### RENAME HISTORICAL TX_CURR_28 'TX_CURR_28_proxy'
- txcurr28<- snapshot_df %>% 
-   filter(indicator %in% c("TX_CURR_28")) %>%
-   mutate(new_indicator= "TX_CURR_28_proxy") %>% 
-   select(-indicator) %>% 
-   spread(new_indicator, val)
-    
+##### CALCULATE HISTORICAL NET_NEW  
+netnew28<- snapshot_df %>% 
+  filter(indicator %in% c("TX_CURR_28")) %>%
+  filter(!is.na(val)) %>%  
+  arrange(Facility, mon_yr) %>% 
+  mutate(net_new= (val - lag(val, default = 0, order_by = Facility))) %>% 
+  gather(indicator, val, "net_new") %>% 
+  filter(mon_yr < "2020-07") %>% 
+  mutate(new_indicator= "NET_NEW_proxy") %>%
+  select(-indicator) %>% 
+  spread(new_indicator, val)
+
+##### RENAME HISTORICAL TX_CURR_28 'TX_CURR_28_proxy'
+txcurr28<- snapshot_df %>% 
+  filter(indicator %in% c("TX_CURR_28")) %>%
+  mutate(new_indicator= "TX_CURR_28_proxy") %>% 
+  select(-indicator) %>% 
+  spread(new_indicator, val) %>% 
+  mutate(Latemissed = 0,
+         TX_CURR_90 = 0) 
+
+
+##### COMBINE Historical TX_CURR_28 & NET_ NEW
+htx<-left_join(txcurr28, netnew28) %>% 
+  select(1:12,14,16,13,15)
+
 ##### CALCULATE NEW TX_CURR_28_proxy   
 txcurr28proxy<-snapshot_df %>% 
-    filter(indicator %in% c("TX_CURR_90", "Latemissed")) %>% 
-    spread(indicator, val) %>% 
-    arrange(Facility, mon_yr) %>% 
-    filter(FundingAgency == "HHS/CDC") %>% 
-    mutate(TX_CURR_28_proxy = TX_CURR_90 - lag(Latemissed, default=0, order_by = Facility))
-   
- txcurr28proxy<-txcurr28proxy %>% 
-    mutate(NET_NEW_proxy = TX_CURR_28_proxy - lag(TX_CURR_28_proxy, default=0, order_by = Facility)) %>% 
-    gather(indicator,val,colnames(select_if(., (is.numeric)))) %>% 
-    mutate(new_indicator= indicator) %>% 
-    filter(mon_yr > "2020-06") %>% 
-   select(-indicator) %>% 
-   spread(new_indicator, val)
-   
-# CREATE FINAL DATASET -------------------------------------------------------------------
+  filter(indicator %in% c("TX_CURR_90", "Latemissed")) %>% 
+  spread(indicator, val) %>% 
+  arrange(Facility, mon_yr) %>% 
+  filter(FundingAgency == "HHS/CDC") %>% 
+  mutate(TX_CURR_28_proxy = TX_CURR_90 - lag(Latemissed, default=0, order_by = Facility))
 
- merge_df<-left_join(numden_df, txcurr28proxy) 
- merge_df<- left_join(merge_df, txcurr28)
- merge_df<-left_join(merge_df, netnew28)
- merge_df<-left_join(merge_df, rem_ind) %>% 
-   arrange(Facility, mon_yr)
+txcurr28proxy<-txcurr28proxy %>% 
+  mutate(NET_NEW_proxy = TX_CURR_28_proxy - lag(TX_CURR_28_proxy, default=0, order_by = Facility)) %>% 
+  gather(indicator,val,colnames(select_if(., (is.numeric)))) %>% 
+  mutate(new_indicator= indicator) %>% 
+  filter(mon_yr > "2020-06") %>% 
+  select(-indicator) %>% 
+  spread(new_indicator, val)
+
+# CREATE FINAL DATASET -------------------------------------------------------------------
+tx_df<-bind_rows(htx, txcurr28proxy)
+merge_df<-left_join(numden_df, tx_df) 
+merge_df<-left_join(merge_df, rem_ind) %>% 
+  arrange(Facility, mon_yr)
  
 # EXPORT FINAL DATASET ------------------------------------------------------------------
  
 write_tsv(merge_df, file.path(here("Dataout"),filename1,na=""))
  
 
-#  # INDICATOR Rename KEY ------------------------------------------------------------------- 
-# indref<-merge_df %>% 
-#   select(c(Facility, MechanismID, mon_yr, indicator, new_indicator)) %>% 
+#  # INDICATOR Rename KEY -------------------------------------------------------------------
+# indref<-merge_df %>%
+#   select(c(Facility, MechanismID, mon_yr, indicator, new_indicator)) %>%
 #   distinct(indicator, new_indicator)
 # 
 #  write_tsv(indref, file.path(here("Dataout"),"indicatorKey.txt",na=""))
-# 
-# 
-#  # CLEAR GLOBAL ENVIRONMENT --------------------------------------------------------------
-#  rm(list=ls())
+
+
+ # CLEAR GLOBAL ENVIRONMENT --------------------------------------------------------------
+ rm(list=ls())
+ 
+ 

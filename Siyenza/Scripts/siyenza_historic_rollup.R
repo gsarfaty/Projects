@@ -69,7 +69,7 @@ dateref<- df_base %>%
 
 
 # MERGE HISTORICAL DATA WITH WEEK START & END VARIABLES -----------------------------------
-final<-left_join(final, dateref) %>%  
+final<-left_join(final, dateref)  
 
 
 # EXPORT -----------------------------------------------------------------------------
